@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "URL Saver",
+  "version": "1.0",
+  "description": "Save URLs with descriptions and timestamps",
+  "permissions": ["storage", "activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
