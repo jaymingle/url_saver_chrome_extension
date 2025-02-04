@@ -4,46 +4,119 @@
     <title>URL Saver</title>
     <style>
         body {
-            width: 300px;
-            padding: 10px;
+            width: 350px;
+            padding: 15px;
             font-family: Arial, sans-serif;
         }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         textarea {
             width: 100%;
             margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
         }
+
         button {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         #savedUrls {
-            margin-top: 10px;
-            max-height: 200px;
+            margin-top: 15px;
+            max-height: 300px;
             overflow-y: auto;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
         }
+
         .url-item {
-            border-bottom: 1px solid #ddd;
-            padding: 5px 0;
+            background: #f9f9f9;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+            position: relative;
         }
+
+        .url-item a {
+            color: #2196F3;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 13px;
+        }
+
+        .url-item a:hover {
+            text-decoration: underline;
+        }
+
+        .url-description {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .url-timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+
         .delete-btn {
-            color: red;
-            float: right;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #ff4444;
             cursor: pointer;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .storage-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
         }
     </style>
 </head>
 <body>
-<textarea id="description" placeholder="Enter description..." rows="3"></textarea>
-<button id="saveButton">Save Current URL</button>
-<div id="savedUrls"></div>
+<div class="container">
+    <textarea id="description" placeholder="Enter description..." rows="3"></textarea>
+    <button id="saveButton">Save Current URL</button>
+    <div id="savedUrls"></div>
+    <div class="storage-info">
+        URLs are saved locally in Chrome storage.
+        <span id="storageUsage"></span>
+    </div>
+</div>
 <script src="popup.js"></script>
 </body>
 </html>
