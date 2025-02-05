@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedUrls();
     document.getElementById('saveButton').addEventListener('click', saveCurrentUrl);
+    document.getElementById('exportButton').addEventListener('click', exportToCSV);
     updateStorageInfo();
 });
 
@@ -78,6 +79,39 @@ function deleteUrl(index) {
             });
         });
     }
+}
+
+function exportToCSV() {
+    chrome.storage.local.get(['savedUrls'], function(result) {
+        const savedUrls = result.savedUrls || [];
+
+        if (savedUrls.length === 0) {
+            alert('No URLs to export');
+            return;
+        }
+
+        // Create CSV content
+        const csvContent = [
+            ['Description', 'URL', 'Timestamp'], // Headers
+            ...savedUrls.map(item => [
+                `"${item.description.replace(/"/g, '""')}"`, // Escape quotes in description
+                item.url,
+                item.timestamp
+            ])
+        ].map(row => row.join(',')).join('\n');
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `saved_urls_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    });
 }
 
 function updateStorageInfo() {
