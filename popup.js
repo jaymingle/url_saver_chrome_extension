@@ -351,7 +351,6 @@ function exportToCSV() {
     });
 }
 
-// Utility Functions
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
