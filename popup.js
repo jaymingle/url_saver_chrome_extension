@@ -186,8 +186,12 @@ async function loadSavedUrls() {
         <div class="url-description">${escapeHtml(item.description)}</div>
         <a href="${item.url}" class="url-link" target="_blank">${item.url}</a>
         <div class="url-timestamp">Saved: ${item.timestamp}</div>
-        <button class="edit-btn" title="Edit Description">✏️</button>
-        <button class="delete-btn" title="Delete">×</button>
+        <button class="edit-btn" title="Edit Description">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="delete-btn" title="Delete">
+          <i class="fa-solid fa-trash"></i>
+        </button>
       `;
 
             // Add edit button event listener
