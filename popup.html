@@ -2,228 +2,15 @@
 <html>
 <head>
     <title>URL Saver Pro</title>
+    <!-- Add these styles to the existing style section in popup.html -->
     <style>
-        body {
-            width: 350px;
-            padding: 15px;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        textarea {
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .primary-button {
-            flex: 2;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-
-        .secondary-button {
-            flex: 1;
-            padding: 10px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-
-        .primary-button:hover { background-color: #45a049; }
-        .secondary-button:hover { background-color: #1976D2; }
-
-        .text-button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 8px;
-            width: 100%;
-            text-align: center;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .text-button:hover {
-            background: #f5f5f5;
-        }
-
-        .url-item {
-            background: #f9f9f9;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .url-description {
-            margin: 5px 0;
-            font-weight: 500;
-            word-break: break-word;
-        }
-
-        .url-link {
-            color: #2196F3;
-            text-decoration: none;
-            word-break: break-all;
-            font-size: 13px;
-            display: block;
-            margin: 5px 0;
-        }
-
-        .url-link:hover {
-            text-decoration: underline;
-        }
-
-        .url-timestamp {
-            color: #666;
-            font-size: 11px;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: none;
-            border: none;
-            color: #ff4444;
-            cursor: pointer;
-            padding: 4px 8px;
-            font-size: 18px;
-            border-radius: 3px;
-            transition: all 0.2s;
-            line-height: 1;
-        }
-
-        .delete-btn:hover {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
-
-        .storage-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .storage-meter {
-            width: 100%;
-            height: 4px;
-            background: #eee;
-            border-radius: 2px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-
-        .storage-meter-fill {
-            height: 100%;
-            background: #4CAF50;
-            border-radius: 2px;
-            transition: width 0.3s;
-        }
-
-        .storage-meter-fill.warning { background: #ff9800; }
-        .storage-meter-fill.critical { background: #f44336; }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            z-index: 1000;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .notification.success { background: #4CAF50; }
-        .notification.error { background: #f44336; }
-        .notification.info { background: #2196F3; }
-        .notification.warning { background: #ff9800; }
-
-        .notification.fade-out { opacity: 0; }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 300px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        #savedUrls {
-            max-height: 350px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-
-        .no-urls {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
+        /* ... (keep existing styles) ... */
 
         .edit-btn {
             position: absolute;
             top: 8px;
-            right: 40px; // Position it left of the delete button
-        background: none;
+            right: 40px;
+            background: none;
             border: none;
             color: #2196F3;
             cursor: pointer;
@@ -280,7 +67,290 @@
             color: #666;
         }
 
+        .url-item {
+            position: relative;
+            padding-right: 80px; /* Make room for edit and delete buttons */
+        }
     </style>
+<!--    <style>-->
+<!--        body {-->
+<!--            width: 350px;-->
+<!--            padding: 15px;-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 0;-->
+<!--        }-->
+
+<!--        .container {-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            gap: 10px;-->
+<!--        }-->
+
+<!--        textarea {-->
+<!--            width: 100%;-->
+<!--            margin: 5px 0;-->
+<!--            padding: 8px;-->
+<!--            border: 1px solid #ccc;-->
+<!--            border-radius: 4px;-->
+<!--            resize: vertical;-->
+<!--            font-family: inherit;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+
+<!--        .button-group {-->
+<!--            display: flex;-->
+<!--            gap: 8px;-->
+<!--            margin: 10px 0;-->
+<!--        }-->
+
+<!--        .primary-button {-->
+<!--            flex: 2;-->
+<!--            padding: 10px;-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            border-radius: 4px;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 14px;-->
+<!--            transition: background-color 0.2s;-->
+<!--        }-->
+
+<!--        .secondary-button {-->
+<!--            flex: 1;-->
+<!--            padding: 10px;-->
+<!--            background-color: #2196F3;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            border-radius: 4px;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 14px;-->
+<!--            transition: background-color 0.2s;-->
+<!--        }-->
+
+<!--        .primary-button:hover { background-color: #45a049; }-->
+<!--        .secondary-button:hover { background-color: #1976D2; }-->
+
+<!--        .text-button {-->
+<!--            background: none;-->
+<!--            border: none;-->
+<!--            color: #666;-->
+<!--            cursor: pointer;-->
+<!--            padding: 8px;-->
+<!--            width: 100%;-->
+<!--            text-align: center;-->
+<!--            border-radius: 4px;-->
+<!--            transition: background-color 0.2s;-->
+<!--        }-->
+
+<!--        .text-button:hover {-->
+<!--            background: #f5f5f5;-->
+<!--        }-->
+
+<!--        .url-item {-->
+<!--            background: #f9f9f9;-->
+<!--            border-radius: 4px;-->
+<!--            padding: 12px;-->
+<!--            margin-bottom: 8px;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .url-description {-->
+<!--            margin: 5px 0;-->
+<!--            font-weight: 500;-->
+<!--            word-break: break-word;-->
+<!--        }-->
+
+<!--        .url-link {-->
+<!--            color: #2196F3;-->
+<!--            text-decoration: none;-->
+<!--            word-break: break-all;-->
+<!--            font-size: 13px;-->
+<!--            display: block;-->
+<!--            margin: 5px 0;-->
+<!--        }-->
+
+<!--        .url-link:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+
+<!--        .url-timestamp {-->
+<!--            color: #666;-->
+<!--            font-size: 11px;-->
+<!--        }-->
+
+<!--        .delete-btn {-->
+<!--            position: absolute;-->
+<!--            top: 8px;-->
+<!--            right: 8px;-->
+<!--            background: none;-->
+<!--            border: none;-->
+<!--            color: #ff4444;-->
+<!--            cursor: pointer;-->
+<!--            padding: 4px 8px;-->
+<!--            font-size: 18px;-->
+<!--            border-radius: 3px;-->
+<!--            transition: all 0.2s;-->
+<!--            line-height: 1;-->
+<!--        }-->
+
+<!--        .delete-btn:hover {-->
+<!--            background-color: #ffebee;-->
+<!--            color: #d32f2f;-->
+<!--        }-->
+
+<!--        .storage-info {-->
+<!--            margin-top: 10px;-->
+<!--            padding: 10px;-->
+<!--            background: #f5f5f5;-->
+<!--            border-radius: 4px;-->
+<!--            font-size: 12px;-->
+<!--        }-->
+
+<!--        .storage-meter {-->
+<!--            width: 100%;-->
+<!--            height: 4px;-->
+<!--            background: #eee;-->
+<!--            border-radius: 2px;-->
+<!--            margin-top: 5px;-->
+<!--            overflow: hidden;-->
+<!--        }-->
+
+<!--        .storage-meter-fill {-->
+<!--            height: 100%;-->
+<!--            background: #4CAF50;-->
+<!--            border-radius: 2px;-->
+<!--            transition: width 0.3s;-->
+<!--        }-->
+
+<!--        .storage-meter-fill.warning { background: #ff9800; }-->
+<!--        .storage-meter-fill.critical { background: #f44336; }-->
+
+<!--        .notification {-->
+<!--            position: fixed;-->
+<!--            bottom: 20px;-->
+<!--            left: 50%;-->
+<!--            transform: translateX(-50%);-->
+<!--            padding: 10px 20px;-->
+<!--            border-radius: 4px;-->
+<!--            color: white;-->
+<!--            font-size: 14px;-->
+<!--            z-index: 1000;-->
+<!--            transition: opacity 0.3s;-->
+<!--            box-shadow: 0 2px 5px rgba(0,0,0,0.2);-->
+<!--        }-->
+
+<!--        .notification.success { background: #4CAF50; }-->
+<!--        .notification.error { background: #f44336; }-->
+<!--        .notification.info { background: #2196F3; }-->
+<!--        .notification.warning { background: #ff9800; }-->
+
+<!--        .notification.fade-out { opacity: 0; }-->
+
+<!--        .modal {-->
+<!--            position: fixed;-->
+<!--            top: 0;-->
+<!--            left: 0;-->
+<!--            right: 0;-->
+<!--            bottom: 0;-->
+<!--            background: rgba(0,0,0,0.5);-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            z-index: 1000;-->
+<!--        }-->
+
+<!--        .modal-content {-->
+<!--            background: white;-->
+<!--            padding: 20px;-->
+<!--            border-radius: 8px;-->
+<!--            width: 80%;-->
+<!--            max-width: 300px;-->
+<!--        }-->
+
+<!--        .modal-buttons {-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            gap: 8px;-->
+<!--            margin-top: 15px;-->
+<!--        }-->
+
+<!--        #savedUrls {-->
+<!--            max-height: 350px;-->
+<!--            overflow-y: auto;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+
+<!--        .no-urls {-->
+<!--            text-align: center;-->
+<!--            color: #666;-->
+<!--            padding: 20px;-->
+<!--            background: #f9f9f9;-->
+<!--            border-radius: 4px;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+
+<!--        .edit-btn {-->
+<!--            position: absolute;-->
+<!--            top: 8px;-->
+<!--            right: 40px; // Position it left of the delete button-->
+<!--        background: none;-->
+<!--            border: none;-->
+<!--            color: #2196F3;-->
+<!--            cursor: pointer;-->
+<!--            padding: 4px 8px;-->
+<!--            font-size: 16px;-->
+<!--            border-radius: 3px;-->
+<!--            transition: all 0.2s;-->
+<!--            line-height: 1;-->
+<!--        }-->
+
+<!--        .edit-btn:hover {-->
+<!--            background-color: #e3f2fd;-->
+<!--            color: #1976D2;-->
+<!--        }-->
+
+<!--        .edit-mode .url-description {-->
+<!--            display: none;-->
+<!--        }-->
+
+<!--        .edit-textarea {-->
+<!--            width: 100%;-->
+<!--            margin: 5px 0;-->
+<!--            padding: 8px;-->
+<!--            border: 1px solid #2196F3;-->
+<!--            border-radius: 4px;-->
+<!--            resize: vertical;-->
+<!--            font-family: inherit;-->
+<!--            box-sizing: border-box;-->
+<!--            min-height: 60px;-->
+<!--        }-->
+
+<!--        .edit-buttons {-->
+<!--            display: flex;-->
+<!--            gap: 8px;-->
+<!--            margin-top: 8px;-->
+<!--        }-->
+
+<!--        .edit-buttons button {-->
+<!--            flex: 1;-->
+<!--            padding: 6px;-->
+<!--            border: none;-->
+<!--            border-radius: 4px;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 12px;-->
+<!--        }-->
+
+<!--        .save-edit-btn {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        .cancel-edit-btn {-->
+<!--            background-color: #f5f5f5;-->
+<!--            color: #666;-->
+<!--        }-->
+
+<!--    </style>-->
 </head>
 <body>
 <div class="container">

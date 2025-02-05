@@ -6,136 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateStorageInfo();
 });
 
-
-// Function to create edit mode UI
-function createEditMode(div, item, index) {
-    const descriptionDiv = div.querySelector('.url-description');
-    const originalDescription = item.description;
-
-    // Create edit container
-    const editContainer = document.createElement('div');
-    editContainer.className = 'edit-container';
-    editContainer.innerHTML = `
-    <textarea class="edit-textarea">${originalDescription}</textarea>
-    <div class="edit-buttons">
-      <button class="save-edit-btn">Save</button>
-      <button class="cancel-edit-btn">Cancel</button>
-    </div>
-  `;
-
-    // Insert edit container after description
-    descriptionDiv.parentNode.insertBefore(editContainer, descriptionDiv.nextSibling);
-
-    // Hide description
-    descriptionDiv.style.display = 'none';
-
-    // Focus textarea
-    const textarea = editContainer.querySelector('.edit-textarea');
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-
-    // Save button handler
-    editContainer.querySelector('.save-edit-btn').addEventListener('click', async () => {
-        const newDescription = textarea.value.trim();
-        if (!newDescription) {
-            showNotification('Description cannot be empty', 'error');
-            return;
-        }
-        await saveEdit(index, newDescription);
-        exitEditMode(div, descriptionDiv, editContainer, newDescription);
-    });
-
-    // Cancel button handler
-    editContainer.querySelector('.cancel-edit-btn').addEventListener('click', () => {
-        exitEditMode(div, descriptionDiv, editContainer, originalDescription);
-    });
-
-    // Handle Escape key to cancel and Enter+Ctrl to save
-    textarea.addEventListener('keydown', async (e) => {
-        if (e.key === 'Escape') {
-            exitEditMode(div, descriptionDiv, editContainer, originalDescription);
-        } else if (e.key === 'Enter' && e.ctrlKey) {
-            const newDescription = textarea.value.trim();
-            if (!newDescription) {
-                showNotification('Description cannot be empty', 'error');
-                return;
-            }
-            await saveEdit(index, newDescription);
-            exitEditMode(div, descriptionDiv, editContainer, newDescription);
-        }
-    });
-}
-
-// Function to exit edit mode
-function exitEditMode(div, descriptionDiv, editContainer, description) {
-    descriptionDiv.textContent = description;
-    descriptionDiv.style.display = 'block';
-    editContainer.remove();
-}
-
-// Function to save edited description
-async function saveEdit(index, newDescription) {
-    try {
-        const result = await chrome.storage.local.get(['savedUrls']);
-        const savedUrls = result.savedUrls || [];
-
-        if (index >= 0 && index < savedUrls.length) {
-            savedUrls[index].description = newDescription;
-            await chrome.storage.local.set({ savedUrls });
-            showNotification('Description updated successfully!', 'success');
-            await loadSavedUrls();
-            updateStorageInfo();
-        }
-    } catch (error) {
-        showNotification('Error saving edit: ' + error.message, 'error');
-    }
-}
-
-// Modify the loadSavedUrls function to include edit button
-async function loadSavedUrls() {
-    try {
-        const container = document.getElementById('savedUrls');
-        const result = await chrome.storage.local.get(['savedUrls']);
-        const savedUrls = result.savedUrls || [];
-
-        if (savedUrls.length === 0) {
-            container.innerHTML = '<div class="no-urls">No saved URLs yet</div>';
-            return;
-        }
-
-        container.innerHTML = '';
-        savedUrls.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'url-item';
-            div.innerHTML = `
-        <div class="url-description">${escapeHtml(item.description)}</div>
-        <a href="${item.url}" class="url-link" target="_blank">${item.url}</a>
-        <div class="url-timestamp">Saved: ${item.timestamp}</div>
-        <button class="edit-btn" title="Edit Description">✎</button>
-        <button class="delete-btn" title="Delete">×</button>
-      `;
-
-            // Add event listeners
-            div.querySelector('.delete-btn').addEventListener('click', () => deleteUrl(index));
-            div.querySelector('.edit-btn').addEventListener('click', () => {
-                // Remove any existing edit modes first
-                document.querySelectorAll('.edit-container').forEach(container => {
-                    const urlItem = container.closest('.url-item');
-                    const desc = urlItem.querySelector('.url-description');
-                    desc.style.display = 'block';
-                    container.remove();
-                });
-                // Enter edit mode for this item
-                createEditMode(div, item, index);
-            });
-
-            container.appendChild(div);
-        });
-    } catch (error) {
-        showNotification('Error loading URLs: ' + error.message, 'error');
-    }
-}
-
 // Storage Full Dialog
 async function showStorageFullDialog() {
     return new Promise((resolve) => {
@@ -155,7 +25,6 @@ async function showStorageFullDialog() {
 
         document.body.appendChild(modal);
 
-        // Handle Export & Clear All
         modal.querySelector('#exportAndClear').onclick = async () => {
             await exportToCSV();
             await clearAllUrls();
@@ -163,14 +32,12 @@ async function showStorageFullDialog() {
             resolve(true);
         };
 
-        // Handle Delete Oldest
         modal.querySelector('#deleteOldest').onclick = async () => {
-            await deleteOldestEntries(10); // Delete oldest 10 entries
+            await deleteOldestEntries(10);
             modal.remove();
             resolve(true);
         };
 
-        // Handle Cancel
         modal.querySelector('#cancelAction').onclick = () => {
             modal.remove();
             resolve(false);
@@ -257,7 +124,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Main URL Operations
+// URL Operations
 async function saveCurrentUrl() {
     try {
         const tabs = await chrome.tabs.query({active: true, currentWindow: true});
@@ -280,7 +147,6 @@ async function saveCurrentUrl() {
         const maxBytes = 5 * 1024 * 1024; // 5MB
         const usagePercent = (bytes / maxBytes) * 100;
 
-        // If storage is over 90% full, show storage management dialog
         if (usagePercent > 90) {
             const shouldContinue = await showStorageFullDialog();
             if (!shouldContinue) return;
@@ -300,7 +166,7 @@ async function saveCurrentUrl() {
     }
 }
 
-// URL Loading and Display
+// Load and Display URLs
 async function loadSavedUrls() {
     try {
         const container = document.getElementById('savedUrls');
@@ -320,10 +186,20 @@ async function loadSavedUrls() {
         <div class="url-description">${escapeHtml(item.description)}</div>
         <a href="${item.url}" class="url-link" target="_blank">${item.url}</a>
         <div class="url-timestamp">Saved: ${item.timestamp}</div>
+        <button class="edit-btn" title="Edit Description">✏️</button>
         <button class="delete-btn" title="Delete">×</button>
       `;
 
+            // Add edit button event listener
+            const editBtn = div.querySelector('.edit-btn');
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startEditing(div, item, index);
+            });
+
+            // Add delete button event listener
             div.querySelector('.delete-btn').addEventListener('click', () => deleteUrl(index));
+
             container.appendChild(div);
         });
     } catch (error) {
@@ -331,7 +207,92 @@ async function loadSavedUrls() {
     }
 }
 
-// URL Deletion
+// Edit Functions
+function startEditing(div, item, index) {
+    // Remove any existing edit modes
+    document.querySelectorAll('.edit-container').forEach(container => {
+        const urlItem = container.closest('.url-item');
+        const desc = urlItem.querySelector('.url-description');
+        desc.style.display = 'block';
+        container.remove();
+    });
+
+    const descriptionDiv = div.querySelector('.url-description');
+    const editContainer = document.createElement('div');
+    editContainer.className = 'edit-container';
+
+    // Create edit form
+    editContainer.innerHTML = `
+    <textarea class="edit-textarea">${item.description}</textarea>
+    <div class="edit-buttons">
+      <button class="save-edit-btn">Save</button>
+      <button class="cancel-edit-btn">Cancel</button>
+    </div>
+  `;
+
+    // Hide original description
+    descriptionDiv.style.display = 'none';
+
+    // Insert edit form
+    descriptionDiv.parentNode.insertBefore(editContainer, descriptionDiv.nextSibling);
+
+    // Focus textarea
+    const textarea = editContainer.querySelector('.edit-textarea');
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+    // Add event listeners
+    editContainer.querySelector('.save-edit-btn').addEventListener('click', () => {
+        saveEdit(index, textarea.value.trim(), div, descriptionDiv, editContainer);
+    });
+
+    editContainer.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+        cancelEdit(div, descriptionDiv, editContainer);
+    });
+
+    // Keyboard shortcuts
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            saveEdit(index, textarea.value.trim(), div, descriptionDiv, editContainer);
+        } else if (e.key === 'Escape') {
+            cancelEdit(div, descriptionDiv, editContainer);
+        }
+    });
+}
+
+async function saveEdit(index, newDescription, div, descriptionDiv, editContainer) {
+    if (!newDescription) {
+        showNotification('Description cannot be empty', 'error');
+        return;
+    }
+
+    try {
+        const result = await chrome.storage.local.get(['savedUrls']);
+        const savedUrls = result.savedUrls || [];
+
+        if (index >= 0 && index < savedUrls.length) {
+            savedUrls[index].description = newDescription;
+            await chrome.storage.local.set({ savedUrls });
+
+            // Update UI
+            descriptionDiv.textContent = newDescription;
+            descriptionDiv.style.display = 'block';
+            editContainer.remove();
+
+            showNotification('Description updated successfully!', 'success');
+            updateStorageInfo();
+        }
+    } catch (error) {
+        showNotification('Error saving edit: ' + error.message, 'error');
+    }
+}
+
+function cancelEdit(div, descriptionDiv, editContainer) {
+    descriptionDiv.style.display = 'block';
+    editContainer.remove();
+}
+
+// Delete URL
 async function deleteUrl(index) {
     try {
         if (!confirm('Are you sure you want to delete this URL?')) {
@@ -351,7 +312,7 @@ async function deleteUrl(index) {
     }
 }
 
-// CSV Export
+// Export to CSV
 function exportToCSV() {
     chrome.storage.local.get(['savedUrls'], function(result) {
         const savedUrls = result.savedUrls || [];
