@@ -14,5 +14,16 @@
   "icons": {
     "48": "icon48.png",
     "128": "icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "mac": "Command+1",
+        "windows": "Ctrl+1",
+        "chromeos": "Ctrl+1",
+        "linux": "Ctrl+1"
+      },
+      "description": "Open URL Saver"
+    }
   }
 }
