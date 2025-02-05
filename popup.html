@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>URL Saver Pro</title>
-    <!-- Add these styles to the existing style section in popup.html -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
 
         .edit-btn {
@@ -14,7 +14,22 @@
             color: #2196F3;
             cursor: pointer;
             padding: 4px 8px;
-            font-size: 16px;
+            font-size: 14px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 14px;
             border-radius: 3px;
             transition: all 0.2s;
             line-height: 1;
@@ -23,6 +38,16 @@
         .edit-btn:hover {
             background-color: #e3f2fd;
             color: #1976D2;
+        }
+
+        .delete-btn:hover {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* Make sure icons are vertically aligned */
+        .fa-solid {
+            vertical-align: middle;
         }
 
         .edit-mode .url-description {
