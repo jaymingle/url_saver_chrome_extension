@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "URL Saver",
+  "name": "URL Saver Pro",
   "version": "1.0",
-  "description": "Save URLs with descriptions and timestamps",
+  "description": "Save URLs with descriptions, timestamps, and storage management",
   "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",
