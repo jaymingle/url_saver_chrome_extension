@@ -3,81 +3,61 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSavedUrls();
     document.getElementById('saveButton').addEventListener('click', saveCurrentUrl);
     document.getElementById('exportButton').addEventListener('click', exportToCSV);
+    document.getElementById('manageStorageButton').addEventListener('click', showStorageManagementDialog);
     updateStorageInfo();
 });
 
-// Storage Full Dialog
-async function showStorageFullDialog() {
-    return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-      <div class="modal-content">
-        <h3 style="margin-top: 0;">Storage Almost Full!</h3>
-        <p>Your storage is getting full. Would you like to:</p>
-        <div class="modal-buttons">
-          <button id="exportAndClear" class="primary-button">Export & Clear All</button>
-          <button id="deleteOldest" class="secondary-button">Delete Oldest Entries</button>
-          <button id="cancelAction" class="text-button">Cancel</button>
+// Storage Management Dialog
+async function showStorageManagementDialog() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Storage Management</h3>
+            <div class="storage-meter mt-4">
+                <div id="modalStorageMeter" class="storage-meter-fill"></div>
+            </div>
+            <div id="modalStorageText" class="mt-2 text-sm text-gray-600"></div>
+            <div class="modal-buttons mt-4">
+                <button id="exportAllBtn" class="primary-button">Export All URLs</button>
+                <button id="clearAllBtn" class="secondary-button">Clear All URLs</button>
+                <button id="deleteOldestBtn" class="secondary-button">Delete Oldest (10)</button>
+                <button id="closeModalBtn" class="text-button">Close</button>
+            </div>
         </div>
-      </div>
     `;
 
-        document.body.appendChild(modal);
+    document.body.appendChild(modal);
 
-        modal.querySelector('#exportAndClear').onclick = async () => {
-            await exportToCSV();
+    // Update storage meter in modal
+    await updateModalStorageInfo();
+
+    // Add event listeners
+    modal.querySelector('#exportAllBtn').onclick = async () => {
+        await exportToCSV();
+        updateModalStorageInfo();
+    };
+
+    modal.querySelector('#clearAllBtn').onclick = async () => {
+        if (confirm('Are you sure you want to clear all URLs? This cannot be undone.')) {
             await clearAllUrls();
             modal.remove();
-            resolve(true);
-        };
-
-        modal.querySelector('#deleteOldest').onclick = async () => {
-            await deleteOldestEntries(10);
-            modal.remove();
-            resolve(true);
-        };
-
-        modal.querySelector('#cancelAction').onclick = () => {
-            modal.remove();
-            resolve(false);
-        };
-    });
-}
-
-// Storage Management Functions
-async function deleteOldestEntries(count) {
-    try {
-        const result = await chrome.storage.local.get(['savedUrls']);
-        let savedUrls = result.savedUrls || [];
-
-        if (savedUrls.length <= count) {
-            savedUrls = [];
-        } else {
-            savedUrls = savedUrls.slice(0, -count);
         }
+    };
 
-        await chrome.storage.local.set({ savedUrls });
-        showNotification(`Deleted ${count} oldest entries`, 'info');
-        loadSavedUrls();
-        updateStorageInfo();
-    } catch (error) {
-        showNotification('Error deleting entries: ' + error.message, 'error');
-    }
+    modal.querySelector('#deleteOldestBtn').onclick = async () => {
+        if (confirm('Delete the 10 oldest URLs?')) {
+            await deleteOldestEntries(10);
+            await updateModalStorageInfo();
+        }
+    };
+
+    modal.querySelector('#closeModalBtn').onclick = () => {
+        modal.remove();
+    };
 }
 
-async function clearAllUrls() {
-    try {
-        await chrome.storage.local.set({ savedUrls: [] });
-        showNotification('All URLs cleared', 'info');
-        loadSavedUrls();
-        updateStorageInfo();
-    } catch (error) {
-        showNotification('Error clearing URLs: ' + error.message, 'error');
-    }
-}
-
-// Storage Info Update
+// Storage Info Updates
 async function updateStorageInfo() {
     try {
         const bytes = await chrome.storage.local.getBytesInUse(null);
@@ -99,14 +79,37 @@ async function updateStorageInfo() {
             `${(bytes / 1024 / 1024).toFixed(2)}MB of 5MB used (${usagePercent.toFixed(1)}%)`;
 
         if (usagePercent > 90) {
-            showNotification('Storage nearly full! Consider exporting and clearing some data.', 'warning');
+            showNotification('Storage nearly full! Consider managing your storage.', 'warning');
         }
     } catch (error) {
         console.error('Error updating storage info:', error);
     }
 }
 
-// Notification System
+async function updateModalStorageInfo() {
+    try {
+        const bytes = await chrome.storage.local.getBytesInUse(null);
+        const maxBytes = 5 * 1024 * 1024;
+        const usagePercent = (bytes / maxBytes) * 100;
+
+        const meter = document.getElementById('modalStorageMeter');
+        if (meter) {
+            meter.style.width = `${usagePercent}%`;
+            meter.className = `storage-meter-fill ${
+                usagePercent > 90 ? 'critical' : usagePercent > 70 ? 'warning' : ''
+            }`;
+        }
+
+        const text = document.getElementById('modalStorageText');
+        if (text) {
+            text.textContent = `${(bytes / 1024 / 1024).toFixed(2)}MB of 5MB used (${usagePercent.toFixed(1)}%)`;
+        }
+    } catch (error) {
+        console.error('Error updating modal storage info:', error);
+    }
+}
+
+// Enhanced Notification System
 function showNotification(message, type = 'info') {
     const existing = document.querySelector('.notification');
     if (existing) {
@@ -115,7 +118,13 @@ function showNotification(message, type = 'info') {
 
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.textContent = message;
+    notification.innerHTML = `
+        <div class="notification-content">
+            ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+            <span>${message}</span>
+        </div>
+    `;
+
     document.body.appendChild(notification);
 
     setTimeout(() => {
@@ -123,7 +132,6 @@ function showNotification(message, type = 'info') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
-
 // URL Operations
 async function saveCurrentUrl() {
     try {
@@ -166,6 +174,39 @@ async function saveCurrentUrl() {
     }
 }
 
+// Storage Management Functions
+async function deleteOldestEntries(count) {
+    try {
+        const result = await chrome.storage.local.get(['savedUrls']);
+        let savedUrls = result.savedUrls || [];
+
+        if (savedUrls.length <= count) {
+            savedUrls = [];
+            showNotification('Cleared all URLs as there were fewer than ' + count, 'info');
+        } else {
+            savedUrls = savedUrls.slice(0, -count);
+            showNotification(`Deleted ${count} oldest URLs`, 'success');
+        }
+
+        await chrome.storage.local.set({ savedUrls });
+        await loadSavedUrls();
+        await updateStorageInfo();
+    } catch (error) {
+        showNotification('Error deleting entries: ' + error.message, 'error');
+    }
+}
+
+async function clearAllUrls() {
+    try {
+        await chrome.storage.local.set({ savedUrls: [] });
+        showNotification('All URLs cleared', 'success');
+        loadSavedUrls();
+        updateStorageInfo();
+    } catch (error) {
+        showNotification('Error clearing URLs: ' + error.message, 'error');
+    }
+}
+
 // Load and Display URLs
 async function loadSavedUrls() {
     try {
@@ -183,16 +224,16 @@ async function loadSavedUrls() {
             const div = document.createElement('div');
             div.className = 'url-item';
             div.innerHTML = `
-        <div class="url-description">${escapeHtml(item.description)}</div>
-        <a href="${item.url}" class="url-link" target="_blank">${item.url}</a>
-        <div class="url-timestamp">Saved: ${item.timestamp}</div>
-        <button class="edit-btn" title="Edit Description">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button class="delete-btn" title="Delete">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      `;
+                <div class="url-description">${escapeHtml(item.description)}</div>
+                <a href="${item.url}" class="url-link" target="_blank">${item.url}</a>
+                <div class="url-timestamp">Saved: ${item.timestamp}</div>
+                <button class="edit-btn" title="Edit Description">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="delete-btn" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
 
             // Add edit button event listener
             const editBtn = div.querySelector('.edit-btn');
@@ -225,27 +266,21 @@ function startEditing(div, item, index) {
     const editContainer = document.createElement('div');
     editContainer.className = 'edit-container';
 
-    // Create edit form
     editContainer.innerHTML = `
-    <textarea class="edit-textarea">${item.description}</textarea>
-    <div class="edit-buttons">
-      <button class="save-edit-btn">Save</button>
-      <button class="cancel-edit-btn">Cancel</button>
-    </div>
-  `;
+        <textarea class="edit-textarea">${item.description}</textarea>
+        <div class="edit-buttons">
+            <button class="save-edit-btn">Save</button>
+            <button class="cancel-edit-btn">Cancel</button>
+        </div>
+    `;
 
-    // Hide original description
     descriptionDiv.style.display = 'none';
-
-    // Insert edit form
     descriptionDiv.parentNode.insertBefore(editContainer, descriptionDiv.nextSibling);
 
-    // Focus textarea
     const textarea = editContainer.querySelector('.edit-textarea');
     textarea.focus();
     textarea.setSelectionRange(textarea.value.length, textarea.value.length);
 
-    // Add event listeners
     editContainer.querySelector('.save-edit-btn').addEventListener('click', () => {
         saveEdit(index, textarea.value.trim(), div, descriptionDiv, editContainer);
     });
@@ -254,7 +289,6 @@ function startEditing(div, item, index) {
         cancelEdit(div, descriptionDiv, editContainer);
     });
 
-    // Keyboard shortcuts
     textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             saveEdit(index, textarea.value.trim(), div, descriptionDiv, editContainer);
@@ -277,12 +311,9 @@ async function saveEdit(index, newDescription, div, descriptionDiv, editContaine
         if (index >= 0 && index < savedUrls.length) {
             savedUrls[index].description = newDescription;
             await chrome.storage.local.set({ savedUrls });
-
-            // Update UI
             descriptionDiv.textContent = newDescription;
             descriptionDiv.style.display = 'block';
             editContainer.remove();
-
             showNotification('Description updated successfully!', 'success');
             updateStorageInfo();
         }
@@ -308,7 +339,7 @@ async function deleteUrl(index) {
         savedUrls.splice(index, 1);
 
         await chrome.storage.local.set({ savedUrls });
-        showNotification('URL deleted', 'info');
+        showNotification('URL deleted successfully', 'success');
         loadSavedUrls();
         updateStorageInfo();
     } catch (error) {
@@ -326,17 +357,15 @@ function exportToCSV() {
             return;
         }
 
-        // Create CSV content
         const csvContent = [
             ['Description', 'URL', 'Timestamp'],
             ...savedUrls.map(item => [
-                `"${item.description.replace(/"/g, '""')}"`, // Escape quotes in description
+                `"${item.description.replace(/"/g, '""')}"`,
                 item.url,
                 item.timestamp
             ])
         ].map(row => row.join(',')).join('\n');
 
-        // Create and trigger download
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -351,6 +380,7 @@ function exportToCSV() {
     });
 }
 
+// Utility Functions
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
