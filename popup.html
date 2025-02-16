@@ -131,60 +131,85 @@
             color: #d32f2f;
         }
 
-        /* Icon Alignment */
-        .fa-solid {
-            vertical-align: middle;
-        }
-
-        /* Edit Mode */
-        .edit-mode .url-description {
-            display: none;
-        }
-
-        .edit-textarea {
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            border: 1px solid #2196F3;
-            border-radius: 4px;
-            resize: vertical;
-            font-family: inherit;
-            box-sizing: border-box;
-            min-height: 60px;
-        }
-
-        .edit-buttons {
+        /* Storage Management */
+        .storage-actions {
+            margin-top: 1rem;
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 0.5rem;
+            justify-content: center;
         }
 
-        .edit-buttons button {
-            flex: 1;
-            padding: 6px;
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #f44336; }
+        .notification.info { background: #2196F3; }
+        .notification.warning { background: #ff9800; }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 320px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .modal-buttons button {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-        }
-
-        .save-edit-btn {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .cancel-edit-btn {
-            background-color: #f5f5f5;
-            color: #666;
-        }
-
-        /* Storage Info */
-        .storage-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            font-size: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
         .storage-meter {
@@ -206,57 +231,14 @@
         .storage-meter-fill.warning { background: #ff9800; }
         .storage-meter-fill.critical { background: #f44336; }
 
-        /* Notifications */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
+        .storage-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
             border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            z-index: 1000;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 12px;
         }
 
-        .notification.success { background: #4CAF50; }
-        .notification.error { background: #f44336; }
-        .notification.info { background: #2196F3; }
-        .notification.warning { background: #ff9800; }
-        .notification.fade-out { opacity: 0; }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 300px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        /* Saved URLs Container */
         #savedUrls {
             max-height: 350px;
             overflow-y: auto;
@@ -287,6 +269,11 @@
             <div id="storageMeter" class="storage-meter-fill"></div>
         </div>
         <div id="storageText"></div>
+    </div>
+    <div class="storage-actions">
+        <button id="manageStorageButton" class="secondary-button">
+            <i class="fa-solid fa-database"></i> Manage Storage
+        </button>
     </div>
 </div>
 <script src="popup.js"></script>
